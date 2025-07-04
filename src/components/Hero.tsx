@@ -1,3 +1,4 @@
+// src\components\Hero.tsx
 'use client';
 
 import { useEffect } from 'react';
@@ -7,9 +8,10 @@ interface HeroProps {
   subtitle: string;
   ctaText: string;
   onCtaClick?: () => void;
+  variantId?: string;
 }
 
-export default function Hero({ title, subtitle, ctaText, onCtaClick }: HeroProps) {
+export default function Hero({ title, subtitle, ctaText, onCtaClick, variantId }: HeroProps) {
   useEffect(() => {
     const start = Date.now();
 
@@ -28,6 +30,7 @@ export default function Hero({ title, subtitle, ctaText, onCtaClick }: HeroProps
     // Send CTA click to GTM
     window.dataLayer?.push({
       event: 'cta_click',
+      variantId,
     });
     console.log("📊 cta_click sent to GTM");
 
