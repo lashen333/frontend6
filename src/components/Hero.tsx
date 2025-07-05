@@ -7,11 +7,11 @@ interface HeroProps {
   title: string;
   subtitle: string;
   ctaText: string;
+  variantId: string;
   onCtaClick?: () => void;
-  variantId?: string;
 }
 
-export default function Hero({ title, subtitle, ctaText, onCtaClick, variantId }: HeroProps) {
+export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }: HeroProps) {
   useEffect(() => {
     const start = Date.now();
 
@@ -21,10 +21,11 @@ export default function Hero({ title, subtitle, ctaText, onCtaClick, variantId }
       window.dataLayer?.push({
         event: 'stay_time',
         value: duration,
+        variantId,
       });
       console.log("📊 stay_time sent to GTM:", duration);
     };
-  }, []);
+  }, [variantId]);
 
   const handleCta = () => {
     // Send CTA click to GTM
