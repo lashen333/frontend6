@@ -9,11 +9,31 @@ export default function HeroLoader() {
   const [variant, setVariant] = useState<HeroVariantType | null>(null);
 
   useEffect(() => {
+    const searchParams = window.location.search;
+    const url = `http://localhost:5000/api/get-hero${searchParams}`;
     async function fetchVariant() {
       try {
-        const res = await fetch('http://localhost:5000/api/get-hero');
+        const res = await fetch(url);
         const data = await res.json();
         setVariant(data);
+
+        //Track the UTM load itself
+        if (searchParams.includes(`utm_`)){
+          const urlParams = new URLSearchParams(searchParams);
+          fetch('http://localhost:5000/api/track',{
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              event: 'utm_landing',
+              variantId: data.variantId,
+              value: 1,
+              utms: Object.fromEntries(urlParams.entries())
+            })
+          });
+        }
+        console.log("📊 Hero variant loaded:", data);
       } catch (err) {
         console.error('❌ Failed to load hero variant:', err);
       }

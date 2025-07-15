@@ -15,7 +15,7 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
   useEffect(() => {
     const start = Date.now();
 
-    return () => {
+    const handleLeave = () => {
       const duration = Date.now() - start;
       // Send stay_time to GTM
       window.dataLayer?.push({
@@ -24,7 +24,33 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
         variantId,
       });
       console.log("📊 stay_time sent to GTM:", duration);
+
+      //✅ Send to backend
+      fetch('http://localhost:5000/api/track',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          event: 'stay_time',
+          value: duration,
+          variantId,
+        }),
+      }).catch((err) => console.error('❌ Failed to send stay_time:', err));
     };
+
+    const visibilityHandler = () => {
+      if (document.visibilityState === 'hidden') {
+        handleLeave();
+      }
+    };
+
+    document.addEventListener('visibilitychange', visibilityHandler);
+
+    return () =>{
+      document.removeEventListener('visibilitychange', visibilityHandler);
+      
+    }
   }, [variantId]);
 
   const handleCta = () => {
@@ -34,6 +60,18 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
       variantId,
     });
     console.log("📊 cta_click sent to GTM");
+
+    // ✅ Send to backend
+    fetch('http://localhost:5000/api/track', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        event: 'cta_click',
+        variantId,
+      }),
+    }).catch((err) => console.error('❌ Failed to send cta_click:', err));
 
     if (onCtaClick) onCtaClick();
   };
