@@ -17,12 +17,17 @@ export default function DashboardPage() {
                 try {
                     const json = JSON.parse(text);
                     setData(json);
-                } catch (e) {
+                } catch (error) {
                     console.error('❌ Not valid JSON, got:', text);
                     setError('Invalid response from server (not JSON)');
                 }
-            } catch (err: any) {
-                console.error('❌ Fetch failed:', err);
+            } catch (err: unknown) {
+                //Use unknown type, and log safely
+                if (err instanceof Error){
+                    console.error('❌ Fetch failed:', err.message);
+                } else {
+                    console.error('❌ Fetch failed:', err);
+                }
                 setError('Failed to fetch data');
             }
         }

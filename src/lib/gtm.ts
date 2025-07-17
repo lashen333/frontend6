@@ -1,8 +1,13 @@
 // src\lib\gtm.ts
 
+type DataLayerEvent = {
+  event: string;
+  [key: string]: unknown; // allows other properties, but keeps type safety
+}
+
 declare global {
   interface Window {
-    dataLayer?: { push: (event: any) => void };
+    dataLayer?: { push: (event: DataLayerEvent) => void };
   }
 }
 
