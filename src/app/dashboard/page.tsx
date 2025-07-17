@@ -18,7 +18,7 @@ export default function DashboardPage() {
                     const json = JSON.parse(text);
                     setData(json);
                 } catch (error) {
-                    console.error('❌ Not valid JSON, got:', text);
+                    console.error('❌ Not valid JSON, got:', text ,error);
                     setError('Invalid response from server (not JSON)');
                 }
             } catch (err: unknown) {
