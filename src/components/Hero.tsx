@@ -12,6 +12,8 @@ interface HeroProps {
 }
 
 export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }: HeroProps) {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
     const start = Date.now();
 
@@ -26,7 +28,7 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
       console.log("📊 stay_time sent to GTM:", duration);
 
       //✅ Send to backend
-      fetch('http://localhost:5000/api/track',{
+      fetch(`${apiUrl}/api/track`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,7 +64,7 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
     console.log("📊 cta_click sent to GTM");
 
     // ✅ Send to backend
-    fetch('http://localhost:5000/api/track', {
+    fetch(`${apiUrl}/api/track`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

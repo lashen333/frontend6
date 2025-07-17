@@ -7,10 +7,11 @@ import { HeroVariantType } from '@/types/HeroVariant.types';
 
 export default function HeroLoader() {
   const [variant, setVariant] = useState<HeroVariantType | null>(null);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
     const searchParams = window.location.search;
-    const url = `http://localhost:5000/api/get-hero${searchParams}`;
+    const url = `${apiUrl}/api/get-hero${searchParams}`;
     async function fetchVariant() {
       try {
         const res = await fetch(url);
@@ -20,7 +21,7 @@ export default function HeroLoader() {
         //Track the UTM load itself
         if (searchParams.includes(`utm_`)){
           const urlParams = new URLSearchParams(searchParams);
-          fetch('http://localhost:5000/api/track',{
+          fetch(`${apiUrl}/api/track`,{
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'

@@ -10,8 +10,9 @@ export default function DashboardPage() {
 
     useEffect(() => {
         async function fetchStats() {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
             try {
-                const res = await fetch('http://localhost:5000/api/analyze-performance');
+                const res = await fetch(`${apiUrl}/api/analyze-performance`);
                 const text = await res.text();
 
                 try {
