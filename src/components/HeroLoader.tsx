@@ -1,4 +1,4 @@
-// src/components/HeroLoader.tsx
+// src\components\HeroLoader.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
