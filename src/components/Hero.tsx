@@ -12,6 +12,15 @@ interface HeroProps {
   onCtaClick?: () => void;
 }
 
+type AnalyticsPayload = {
+  event: string;
+  variantId: string;
+  visitorId: string;
+  userAgent: string;
+  timestamp: number;
+  value?: number;
+};
+
 export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }: HeroProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -19,7 +28,7 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
   const trackEvent = (event: string, value?: number) => {
     const visitorId = getVisitorId();
     const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
-    const payload: any = {
+    const payload: AnalyticsPayload = {
       event,
       variantId,
       visitorId,
