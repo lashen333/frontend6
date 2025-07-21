@@ -1,10 +1,13 @@
-// src\utils\visitorId.ts
-
 export function getVisitorId(): string {
-  // Use localStorage so ID stays for this browser
+  if (typeof window === "undefined") return ""; // SSR-safe
+
   let id = localStorage.getItem("visitorId");
   if (!id) {
-    id = crypto.randomUUID(); // or use uuid lib
+    if (crypto?.randomUUID) {
+      id = crypto.randomUUID();
+    } else {
+      id = Math.random().toString(36).substring(2) + Date.now();
+    }
     localStorage.setItem("visitorId", id);
   }
   return id;

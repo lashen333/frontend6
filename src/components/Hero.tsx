@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { getVisitorId } from '@/utils/visitorId';
 
 interface HeroProps {
   title: string;
@@ -14,66 +15,64 @@ interface HeroProps {
 export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }: HeroProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+  // Helper to POST analytics event to backend
+  const trackEvent = (event: string, value?: number) => {
+    const visitorId = getVisitorId();
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    const payload: any = {
+      event,
+      variantId,
+      visitorId,
+      userAgent,
+      timestamp: Date.now(),
+    };
+    if (typeof value !== 'undefined') payload.value = value;
+
+    fetch(`${apiUrl}/api/track`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch((err) => console.error(`❌ Failed to send ${event}:`, err));
+  };
+
   useEffect(() => {
     const start = Date.now();
 
     const handleLeave = () => {
       const duration = Date.now() - start;
-      // Send stay_time to GTM
+      // GTM event (optional)
       window.dataLayer?.push({
         event: 'stay_time',
         value: duration,
         variantId,
+        visitorId: getVisitorId(),
       });
-      console.log("📊 stay_time sent to GTM:", duration);
-
-      //✅ Send to backend
-      fetch(`${apiUrl}/api/track`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          event: 'stay_time',
-          value: duration,
-          variantId,
-        }),
-      }).catch((err) => console.error('❌ Failed to send stay_time:', err));
+      console.log('📊 stay_time sent to GTM:', duration);
+      // Backend analytics
+      trackEvent('stay_time', duration);
     };
 
     const visibilityHandler = () => {
-      if (document.visibilityState === 'hidden') {
-        handleLeave();
-      }
+      if (document.visibilityState === 'hidden') handleLeave();
     };
-
     document.addEventListener('visibilitychange', visibilityHandler);
 
-    return () =>{
+    return () => {
       document.removeEventListener('visibilitychange', visibilityHandler);
-      
-    }
+    };
+    // eslint-disable-next-line
   }, [variantId]);
 
   const handleCta = () => {
-    // Send CTA click to GTM
+    // GTM event (optional)
     window.dataLayer?.push({
       event: 'cta_click',
       variantId,
+      visitorId: getVisitorId(),
     });
-    console.log("📊 cta_click sent to GTM");
-
-    // ✅ Send to backend
-    fetch(`${apiUrl}/api/track`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        event: 'cta_click',
-        variantId,
-      }),
-    }).catch((err) => console.error('❌ Failed to send cta_click:', err));
+    console.log('📊 cta_click sent to GTM');
+    // Backend analytics
+    trackEvent('cta_click');
 
     if (onCtaClick) onCtaClick();
   };
