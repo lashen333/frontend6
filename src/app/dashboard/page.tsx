@@ -1,8 +1,11 @@
-// src/app/dashboard/page.tsx
+// src\app\dashboard\page.tsx
 import VariantPerformanceTable from "@/components/VariantPerformanceTable";
 import CountryPieChart from "@/components/CountryPieChart";
 import VisitsByHourChart from "@/components/VisitsByHourChart";
-// import DevicePieChart from "@/components/DevicePieChart"; // If you build it
+import DevicePieChart from "@/components/DeviceTypePieChart"; 
+import BrowserPieChart from "@/components/BrowserPieChart";
+import VisitsOverTimeChart from "@/components/VisitsOverTimeChart";
+import EventFunnelChart from "@/components/EventFunnelChart";
 
 export default function Dashboard() {
   return (
@@ -12,7 +15,10 @@ export default function Dashboard() {
       <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
         <CountryPieChart />
         <VisitsByHourChart />
-        {/* <DevicePieChart /> */}
+        <DevicePieChart />
+        <BrowserPieChart />
+        <VisitsOverTimeChart />
+        <EventFunnelChart />
       </div>
     </div>
   );

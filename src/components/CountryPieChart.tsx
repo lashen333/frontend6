@@ -18,7 +18,7 @@ export default function CountryPieChart() {
         // Map backend result to recharts format
         const formatted: CountryStat[] = arr.map(({ country, count }) => ({
           country: country || "Unknown",
-          value: count
+          value: count,
         }));
         setData(formatted);
       })
@@ -31,6 +31,16 @@ export default function CountryPieChart() {
   if (!data.length) return <div>Loading countries...</div>;
 
   return (
+    <div style={{
+      background: "#fff",
+      borderRadius: 12,
+      boxShadow: "0 2px 8px #0001",
+      padding: 16,
+      margin: 24,
+      minWidth: 340,
+      maxWidth: 400
+    }}>
+      <h3 style={{ textAlign: "center" }}>Country Performance</h3>
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
         <Pie
@@ -51,5 +61,6 @@ export default function CountryPieChart() {
         <Legend />
       </PieChart>
     </ResponsiveContainer>
+    </div>
   );
 }
