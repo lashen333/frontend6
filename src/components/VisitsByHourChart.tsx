@@ -39,6 +39,8 @@ export default function VisitsByHourChart() {
       padding: 28
     }}>
       <div style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
+        <h3 style={{ margin: 0, fontSize: 20 }}>Visits by Hour</h3>
+        <span style={{ color: "#888", fontSize: 14 }}>Select Timezone:</span>
         <label htmlFor="timezone" style={{ fontWeight: 500, fontSize: 17 }}>Timezone:</label>
         <select
           id="timezone"
