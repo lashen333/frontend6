@@ -2,9 +2,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { VariantPerformance } from '@/types/VariantPerformance.types';
 
 export default function VariantPerformanceTable() {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<VariantPerformance[]>([]);
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     fetch(`${apiUrl}/api/analyze-performance`) // update URL if needed
