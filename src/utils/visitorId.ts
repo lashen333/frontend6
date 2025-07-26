@@ -1,3 +1,4 @@
+// src\utils\visitorId.ts
 export function getVisitorId(): string {
   if (typeof window === "undefined") return ""; // SSR-safe
 

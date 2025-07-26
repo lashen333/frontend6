@@ -1,41 +1,50 @@
-// src\components\GeoTracker.tsx
 "use client";
 import { useEffect } from "react";
+import { getVisitorId } from "@/utils/visitorId";
 
 export default function GeoTracker() {
   useEffect(() => {
-    // Get your backend API URL from .env (for development/production)
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+
+    // Use your visitorId utility
+    const analyticsData = {
+      event: "page_view",           // Customize this as needed
+      variantId: "default",         // Or dynamically set per page/experiment
+      visitorId: getVisitorId(),    // Now using your reusable util!
+      userAgent: window.navigator.userAgent,
+      utms: {},                     // Populate if you track UTM params
+      timestamp: Date.now()
+    };
 
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         position => {
-          // User allowed location access: send GPS data
           fetch(`${apiUrl}/api/track`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              ...analyticsData,
               lat: position.coords.latitude,
-              lon: position.coords.longitude,
+              lon: position.coords.longitude
             }),
           });
         },
         () => {
-          // User denied location or error: fallback to IP only
           fetch(`${apiUrl}/api/track`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(analyticsData),
           });
         }
       );
     } else {
-      // If browser doesn't support geolocation, fallback to IP only
       fetch(`${apiUrl}/api/track`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(analyticsData),
       });
     }
   }, []);
 
-  return null; // This component doesn't show anything on the UI
+  return null;
 }
