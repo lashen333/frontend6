@@ -20,7 +20,7 @@ export default function GeoTracker() {
             }),
           });
         },
-        (_error) => {
+        () => {
           // User denied location or error: fallback to IP only
           fetch(`${apiUrl}/api/track`, {
             method: "POST",
