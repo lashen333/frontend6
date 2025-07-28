@@ -43,7 +43,7 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
     return () => {
       document.removeEventListener('visibilitychange', visibilityHandler);
     };
-  }, [variantId, location.lat, location.lon]); // re-run if location updates
+  }, [variantId, location]); // re-run if location updates
 
   // Track CTA click
   const handleCta = () => {

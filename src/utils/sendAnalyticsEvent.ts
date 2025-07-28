@@ -4,7 +4,7 @@ import { getUTMParams } from "./utm";
 
 export function sendAnalyticsEvent(
   event: string,
-  data: any = {},
+  data: Record<string, unknown> = {},
   location?: { lat?: number; lon?: number }
 ) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";

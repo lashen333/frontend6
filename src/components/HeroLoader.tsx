@@ -1,3 +1,4 @@
+// src\components\HeroLoader.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -7,6 +8,7 @@ import { getVisitorId } from '@/utils/visitorId';
 import { getUTMParams } from '@/utils/utm';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { sendAnalyticsEvent } from '@/utils/sendAnalyticsEvent';
+import { vi } from 'date-fns/locale';
 
 export default function HeroLoader() {
   const [variant, setVariant] = useState<HeroVariantType | null>(null);
@@ -33,6 +35,7 @@ export default function HeroLoader() {
             "utm_landing",
             {
               variantId: data.variantId || data._id,
+              visitorId: getVisitorId(),
               value: 1,
               utms,
             },
@@ -48,7 +51,7 @@ export default function HeroLoader() {
 
     fetchVariant();
   // Add location to deps so we track with latest GPS when ready
-  }, [apiUrl, location.lat, location.lon]);
+  }, [apiUrl, location]);
 
   if (!variant) return <div className="text-center p-10">Loading...</div>;
 
