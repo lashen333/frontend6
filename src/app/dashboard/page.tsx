@@ -6,6 +6,7 @@ import DevicePieChart from "@/components/DeviceTypePieChart";
 import BrowserPieChart from "@/components/BrowserPieChart";
 import VisitsOverTimeChart from "@/components/VisitsOverTimeChart";
 import EventFunnelChart from "@/components/EventFunnelChart";
+import UserClusterMap from "@/components/UserClusterMap";
 
 export default function Dashboard() {
   return (
@@ -19,6 +20,7 @@ export default function Dashboard() {
         <BrowserPieChart />
         <VisitsOverTimeChart />
         <EventFunnelChart />
+        <UserClusterMap />
       </div>
     </div>
   );
