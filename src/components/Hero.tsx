@@ -3,6 +3,8 @@
 
 import { useEffect } from 'react';
 import { getVisitorId } from '@/utils/visitorId';
+import { useGeoLocation } from '@/hooks/useGeoLocation';
+import { sendAnalyticsEvent } from '@/utils/sendAnalyticsEvent';
 
 interface HeroProps {
   title: string;
@@ -12,44 +14,16 @@ interface HeroProps {
   onCtaClick?: () => void;
 }
 
-type AnalyticsPayload = {
-  event: string;
-  variantId: string;
-  visitorId: string;
-  userAgent: string;
-  timestamp: number;
-  value?: number;
-};
-
 export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }: HeroProps) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const location = useGeoLocation();
 
-  // Helper to POST analytics event to backend
-  const trackEvent = (event: string, value?: number) => {
-    const visitorId = getVisitorId();
-    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
-    const payload: AnalyticsPayload = {
-      event,
-      variantId,
-      visitorId,
-      userAgent,
-      timestamp: Date.now(),
-    };
-    if (typeof value !== 'undefined') payload.value = value;
-
-    fetch(`${apiUrl}/api/track`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    }).catch((err) => console.error(`❌ Failed to send ${event}:`, err));
-  };
-
+  // Track "stay_time" event on page leave/visibility change
   useEffect(() => {
     const start = Date.now();
 
     const handleLeave = () => {
       const duration = Date.now() - start;
-      // GTM event (optional)
+      // GTM event (unchanged)
       window.dataLayer?.push({
         event: 'stay_time',
         value: duration,
@@ -57,8 +31,8 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
         visitorId: getVisitorId(),
       });
       console.log('📊 stay_time sent to GTM:', duration);
-      // Backend analytics
-      trackEvent('stay_time', duration);
+      // Backend analytics (updated to include GPS location if available)
+      sendAnalyticsEvent('stay_time', { variantId, value: duration }, location);
     };
 
     const visibilityHandler = () => {
@@ -69,19 +43,19 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
     return () => {
       document.removeEventListener('visibilitychange', visibilityHandler);
     };
-    // eslint-disable-next-line
-  }, [variantId]);
+  }, [variantId, location.lat, location.lon]); // re-run if location updates
 
+  // Track CTA click
   const handleCta = () => {
-    // GTM event (optional)
+    // GTM event (unchanged)
     window.dataLayer?.push({
       event: 'cta_click',
       variantId,
       visitorId: getVisitorId(),
     });
     console.log('📊 cta_click sent to GTM');
-    // Backend analytics
-    trackEvent('cta_click');
+    // Backend analytics (with location)
+    sendAnalyticsEvent('cta_click', { variantId }, location);
 
     if (onCtaClick) onCtaClick();
   };

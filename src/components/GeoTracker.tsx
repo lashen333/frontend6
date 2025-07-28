@@ -1,3 +1,4 @@
+// src\components\GeoTracker.tsx
 "use client";
 import { useEffect } from "react";
 import { getVisitorId } from "@/utils/visitorId";
