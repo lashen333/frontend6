@@ -8,7 +8,7 @@ import { getVisitorId } from '@/utils/visitorId';
 import { getUTMParams } from '@/utils/utm';
 import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { sendAnalyticsEvent } from '@/utils/sendAnalyticsEvent';
-import { vi } from 'date-fns/locale';
+
 
 export default function HeroLoader() {
   const [variant, setVariant] = useState<HeroVariantType | null>(null);
