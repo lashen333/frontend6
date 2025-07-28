@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import L, { Icon } from "leaflet";
+import { Icon } from "leaflet";
 
 // ✅ Fix default marker icon path without using `any`
 delete (Icon.Default.prototype as unknown as { _getIconUrl?: string })._getIconUrl;
