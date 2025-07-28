@@ -1,5 +1,7 @@
 // src\app\dashboard\page.tsx
-import dynamic from "next/dynamic";
+'use client';
+
+import dynamic from 'next/dynamic';
 import VariantPerformanceTable from "@/components/VariantPerformanceTable";
 import CountryPieChart from "@/components/CountryPieChart";
 import VisitsByHourChart from "@/components/VisitsByHourChart";
@@ -8,12 +10,12 @@ import BrowserPieChart from "@/components/BrowserPieChart";
 import VisitsOverTimeChart from "@/components/VisitsOverTimeChart";
 import EventFunnelChart from "@/components/EventFunnelChart";
 
-// ✅ Dynamically import UserClusterMap to disable SSR
+// ✅ Dynamically import UserClusterMap here (client-only)
 const UserClusterMap = dynamic(() => import("@/components/UserClusterMap"), {
   ssr: false,
 });
 
-export default function Dashboard() {
+export default function DashboardContent() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-6">
