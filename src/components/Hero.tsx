@@ -61,15 +61,36 @@ export default function Hero({ title, subtitle, ctaText, variantId, onCtaClick }
   };
 
   return (
-    <section className="min-h-screen flex flex-col justify-center items-center text-center px-4 bg-gradient-to-b from-white to-gray-100">
-      <h1 className="text-4xl sm:text-5xl font-bold mb-4">{title}</h1>
-      <p className="text-lg sm:text-xl text-gray-700 mb-6 max-w-xl">{subtitle}</p>
+    <section className="relative min-h-screen flex flex-col justify-center items-center text-center px-6 sm:px-8 bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
+      {/* Decorative background glows */}
+      <div className="absolute top-0 left-0 w-72 h-72 bg-yellow-400 rounded-full blur-3xl opacity-20 -translate-x-1/3 -translate-y-1/3 animate-pulse"></div>
+      <div className="absolute bottom-0 right-0 w-72 h-72 bg-yellow-300 rounded-full blur-3xl opacity-20 translate-x-1/3 translate-y-1/3 animate-pulse delay-200"></div>
+
+      {/* Content */}
+      <h1
+        className="text-4xl sm:text-6xl font-extrabold leading-tight mb-6 text-yellow-400 drop-shadow-lg animate-fadeInDown"
+        style={{ animationDelay: "0.2s" }}
+      >
+        {title}
+      </h1>
+      <p
+        className="text-lg sm:text-xl text-gray-300 mb-8 max-w-2xl leading-relaxed animate-fadeInUp"
+        style={{ animationDelay: "0.4s" }}
+      >
+        {subtitle}
+      </p>
+
+      {/* CTA Button */}
       <button
         onClick={handleCta}
-        className="bg-blue-600 text-white px-6 py-3 rounded-xl text-lg hover:bg-blue-700 transition-all"
+        className="relative bg-yellow-400 text-black px-8 py-4 rounded-2xl text-lg font-bold shadow-lg hover:bg-yellow-300 hover:scale-105 hover:shadow-2xl transition-all duration-300 ease-in-out animate-fadeInUp"
+        style={{ animationDelay: "0.6s" }}
       >
-        {ctaText}
+        <span className="relative z-10">{ctaText}</span>
+        <span className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 hover:opacity-100 transition-all duration-300"></span>
       </button>
     </section>
+
+
   );
 }
