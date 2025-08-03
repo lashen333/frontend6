@@ -1,30 +1,55 @@
-// src\app\connect\page.tsx
+// src/app/connect/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import { FaFacebook } from "react-icons/fa";
 
+interface Ad {
+  adId: string;
+  name: string;
+  status: string;
+  headline?: string;
+  cta?: string;
+}
+
+interface AdSet {
+  adSetId: string;
+  name: string;
+  status: string;
+  ads: Ad[];
+}
+
+interface Campaign {
+  _id: string;
+  campaignId: string;
+  name: string;
+  status: string;
+  adSets: AdSet[];
+}
+
+interface AdAccount {
+  id: string;
+  name?: string;
+  account_id?: string;
+}
+
 export default function ConnectPage() {
   const [loading, setLoading] = useState(false);
   const [connected, setConnected] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [adAccounts, setAdAccounts] = useState<any[]>([]);
-  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const [adAccounts, setAdAccounts] = useState<AdAccount[]>([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [fetchingCampaigns, setFetchingCampaigns] = useState(false);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  /**
-   * Step 1: Trigger OAuth flow
-   */
+  /** Step 1: Trigger OAuth flow */
   const handleConnect = () => {
     setLoading(true);
     window.location.href = `${apiUrl}/api/auth/facebook`;
   };
 
-  /**
-   * Step 2: Read accessToken + adAccounts from query params after redirect
-   */
+  /** Step 2: Read accessToken + adAccounts from query params after redirect */
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -43,9 +68,7 @@ export default function ConnectPage() {
     }
   }, []);
 
-  /**
-   * Step 3: Fetch campaigns from backend and save to MongoDB
-   */
+  /** Step 3: Fetch campaigns from backend and save to MongoDB */
   const handleFetchCampaigns = async (adAccountId: string) => {
     if (!accessToken) return;
 
@@ -66,7 +89,7 @@ export default function ConnectPage() {
         const campaignsRes = await fetch(
           `${apiUrl}/api/campaigns?adAccountId=${adAccountId}`
         );
-        const campaignsData = await campaignsRes.json();
+        const campaignsData: Campaign[] = await campaignsRes.json();
         setCampaigns(campaignsData);
       } else {
         alert(data.error || "Failed to fetch campaigns");
@@ -112,7 +135,7 @@ export default function ConnectPage() {
         <div className="w-full max-w-xl">
           <h2 className="text-xl font-semibold mb-4">Select Ad Account:</h2>
           <div className="space-y-2">
-            {adAccounts.map((acc: any) => (
+            {adAccounts.map((acc) => (
               <button
                 key={acc.id}
                 onClick={() => handleFetchCampaigns(acc.id)}
@@ -151,7 +174,7 @@ export default function ConnectPage() {
 
                 {/* Ad Sets */}
                 <div className="mt-3 space-y-4">
-                  {campaign.adSets.map((adSet: any) => (
+                  {campaign.adSets.map((adSet) => (
                     <div
                       key={adSet.adSetId}
                       className="bg-gray-50 rounded-md p-3"
@@ -164,7 +187,7 @@ export default function ConnectPage() {
                       </h4>
                       {/* Ads */}
                       <ul className="mt-2 list-disc pl-5 text-sm text-gray-700 space-y-1">
-                        {adSet.ads.map((ad: any) => (
+                        {adSet.ads.map((ad) => (
                           <li key={ad.adId}>
                             <span className="font-semibold">{ad.name}</span>{" "}
                             - {ad.status}
