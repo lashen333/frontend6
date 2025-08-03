@@ -12,12 +12,14 @@ export default function ConnectPage() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [fetchingCampaigns, setFetchingCampaigns] = useState(false);
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   /**
    * Step 1: Trigger OAuth flow
    */
   const handleConnect = () => {
     setLoading(true);
-    window.location.href = "http://localhost:5000/api/auth/facebook";
+    window.location.href = `${apiUrl}/api/auth/facebook`;
   };
 
   /**
@@ -51,7 +53,7 @@ export default function ConnectPage() {
       setFetchingCampaigns(true);
 
       // Trigger backend to fetch and store campaigns
-      const res = await fetch("http://localhost:5000/api/facebook/fetch-ads", {
+      const res = await fetch(`${apiUrl}/api/facebook/fetch-ads`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ accessToken, adAccountId }),
@@ -62,7 +64,7 @@ export default function ConnectPage() {
       if (res.ok) {
         // Now fetch campaigns from MongoDB
         const campaignsRes = await fetch(
-          `http://localhost:5000/api/campaigns?adAccountId=${adAccountId}`
+          `${apiUrl}/api/campaigns?adAccountId=${adAccountId}`
         );
         const campaignsData = await campaignsRes.json();
         setCampaigns(campaignsData);
