@@ -1,4 +1,4 @@
-// src/components/WhyOptimizeLoader.tsx
+// src\components\WhyOptimizeLoader.tsx
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { getVisitorId } from "@/utils/visitorId";

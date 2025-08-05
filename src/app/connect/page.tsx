@@ -1,4 +1,4 @@
-// src/app/connect/page.tsx
+// src\app\connect\page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,6 +10,7 @@ interface Ad {
   status: string;
   headline?: string;
   cta?: string;
+  imageUrl?: string;
 }
 
 interface AdSet {
@@ -83,6 +84,7 @@ export default function ConnectPage() {
       });
 
       const data = await res.json();
+      
 
       if (res.ok) {
         // Now fetch campaigns from MongoDB
@@ -188,20 +190,17 @@ export default function ConnectPage() {
                       {/* Ads */}
                       <ul className="mt-2 list-disc pl-5 text-sm text-gray-700 space-y-1">
                         {adSet.ads.map((ad) => (
-                          <li key={ad.adId}>
-                            <span className="font-semibold">{ad.name}</span>{" "}
-                            - {ad.status}
-                            {ad.headline && (
-                              <>
-                                <br />
-                                Headline: {ad.headline}
-                              </>
-                            )}
-                            {ad.cta && (
-                              <>
-                                <br />
-                                CTA: {ad.cta}
-                              </>
+                          <li key={ad.adId} className="border rounded p-3 bg-white shadow">
+                            <div className="font-semibold">{ad.name}</div>
+                            <div className="text-sm text-gray-600">Status: {ad.status}</div>
+                            {ad.headline && <div className="text-sm">Headline: {ad.headline}</div>}
+                            {ad.cta && <div className="text-sm">CTA: {ad.cta}</div>}
+                            {ad.imageUrl && (
+                              <img
+                                src={ad.imageUrl}
+                                alt="Ad Image"
+                                className="mt-2 rounded w-full object-cover max-h-60"
+                              />
                             )}
                           </li>
                         ))}
