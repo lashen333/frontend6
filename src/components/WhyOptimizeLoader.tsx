@@ -5,10 +5,14 @@ import { getVisitorId } from "@/utils/visitorId";
 import { getUTMParams } from "@/utils/utm";
 import WhyOptimizeSection from "./WhyOptimizeSection";
 
+interface VariantBox {
+  heading: string;
+  description: string;
+}
 interface Variant {
   _id: string;
   title: string;
-  boxes: { heading: string; description: string }[];
+  boxes: VariantBox[];
 }
 
 type Props = {
@@ -25,26 +29,7 @@ export default function WhyOptimizeLoader({ campaignId }: Props) {
   const apiUrlRef = useRef(apiUrl);
   apiUrlRef.current = apiUrl;
 
-  // ---- Type guard instead of `any` ----
-  const isVariant = (data: unknown): data is Variant => {
-    if (!data || typeof data !== "object") return false;
-    const d = data as Record<string, unknown>;
-    const boxes = d.boxes as unknown;
-    return (
-      typeof d._id === "string" &&
-      typeof d.title === "string" &&
-      Array.isArray(boxes) &&
-      boxes.every(
-        (b) =>
-          b &&
-          typeof b === "object" &&
-          typeof (b as any).heading === "string" &&
-          typeof (b as any).description === "string"
-      )
-    );
-  };
-
-  // ---- Memoized helpers to satisfy exhaustive-deps ----
+  // Build resolver-style URL using current search params
   const buildUrls = useCallback(() => {
     const urlParams = new URLSearchParams(
       typeof window !== "undefined" ? window.location.search : ""
@@ -78,22 +63,41 @@ export default function WhyOptimizeLoader({ campaignId }: Props) {
     };
   }, [campaignId]);
 
-  const normalizeVariant = useCallback(
-    (data: unknown): Variant | null => {
-      if (isVariant(data)) return data;
-      // future-proof: if API later returns { whyVariant: {...} }
-      if (
-        data &&
-        typeof data === "object" &&
-        "whyVariant" in data &&
-        isVariant((data as any).whyVariant)
-      ) {
-        return (data as any).whyVariant as Variant;
-      }
-      return null;
-    },
-    [isVariant]
-  );
+  // Type-safe normalizer (no `any`, no extra deps)
+  const normalizeVariant = useCallback((data: unknown): Variant | null => {
+    const isBox = (b: unknown): b is VariantBox =>
+      typeof b === "object" &&
+      b !== null &&
+      "heading" in b &&
+      "description" in b &&
+      typeof (b as Record<string, unknown>).heading === "string" &&
+      typeof (b as Record<string, unknown>).description === "string";
+
+    const isVariant = (d: unknown): d is Variant => {
+      if (typeof d !== "object" || d === null) return false;
+      const r = d as Record<string, unknown>;
+      return (
+        typeof r._id === "string" &&
+        typeof r.title === "string" &&
+        Array.isArray(r.boxes) &&
+        r.boxes.every(isBox)
+      );
+    };
+
+    if (isVariant(data)) return data;
+
+    // Support { whyVariant: {...} } shape
+    if (
+      typeof data === "object" &&
+      data !== null &&
+      "whyVariant" in data &&
+      isVariant((data as { whyVariant?: unknown }).whyVariant)
+    ) {
+      return (data as { whyVariant: Variant }).whyVariant;
+    }
+
+    return null;
+  }, []);
 
   useEffect(() => {
     let mounted = true;
