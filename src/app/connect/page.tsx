@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { FaFacebook } from "react-icons/fa";
+import Image from "next/image";
 
 interface Ad {
   adId: string;
@@ -196,11 +197,15 @@ export default function ConnectPage() {
                             {ad.headline && <div className="text-sm">Headline: {ad.headline}</div>}
                             {ad.cta && <div className="text-sm">CTA: {ad.cta}</div>}
                             {ad.imageUrl && (
-                              <img
-                                src={ad.imageUrl}
-                                alt="Ad Image"
-                                className="mt-2 rounded w-full object-cover max-h-60"
-                              />
+                              <div className="mt-2 relative w-full h-60 overflow-hidden rounded">
+                                <Image
+                                  src={ad.imageUrl}
+                                  alt={`Ad Image - ${ad.name}`}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              </div>
                             )}
                           </li>
                         ))}

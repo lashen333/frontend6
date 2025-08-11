@@ -1,6 +1,6 @@
-// src\components\WhyOptimizeLoader.tsx
+// src/components/WhyOptimizeLoader.tsx
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { getVisitorId } from "@/utils/visitorId";
 import { getUTMParams } from "@/utils/utm";
 import WhyOptimizeSection from "./WhyOptimizeSection";
@@ -12,26 +12,45 @@ interface Variant {
 }
 
 type Props = {
-  campaignId?: string | null; // optional; passed from server page if available
+  campaignId?: string | null;
 };
 
 export default function WhyOptimizeLoader({ campaignId }: Props) {
   const [variant, setVariant] = useState<Variant | null>(null);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  // keep original features but make them robust against re-renders
+  // stable refs
   const startTimeRef = useRef<number>(Date.now());
   const variantRef = useRef<Variant | null>(null);
   const apiUrlRef = useRef(apiUrl);
   apiUrlRef.current = apiUrl;
 
-  // Build resolver-style URL using current search params
-  function buildUrls() {
+  // ---- Type guard instead of `any` ----
+  const isVariant = (data: unknown): data is Variant => {
+    if (!data || typeof data !== "object") return false;
+    const d = data as Record<string, unknown>;
+    const boxes = d.boxes as unknown;
+    return (
+      typeof d._id === "string" &&
+      typeof d.title === "string" &&
+      Array.isArray(boxes) &&
+      boxes.every(
+        (b) =>
+          b &&
+          typeof b === "object" &&
+          typeof (b as any).heading === "string" &&
+          typeof (b as any).description === "string"
+      )
+    );
+  };
+
+  // ---- Memoized helpers to satisfy exhaustive-deps ----
+  const buildUrls = useCallback(() => {
     const urlParams = new URLSearchParams(
       typeof window !== "undefined" ? window.location.search : ""
     );
 
-    // allow server-provided campaignId to override if missing in URL
+    // prefer server-provided campaignId if missing in URL
     if (campaignId && !urlParams.get("campaign_id")) {
       urlParams.set("campaign_id", String(campaignId));
     }
@@ -43,7 +62,7 @@ export default function WhyOptimizeLoader({ campaignId }: Props) {
       "utm_source",
       "utm_campaign",
       "utm_content",
-    ];
+    ] as const;
 
     const qs = new URLSearchParams();
     passKeys.forEach((k) => {
@@ -54,18 +73,27 @@ export default function WhyOptimizeLoader({ campaignId }: Props) {
     const hasAny = Array.from(qs.keys()).length > 0;
     return {
       hasAny,
-      resolveUrl: `${apiUrlRef.current}/api/get-why-optimize?${qs.toString()}`, // if you create a resolver for WhyOptimize later, just swap endpoint
-      legacyUrl: `${apiUrlRef.current}/api/get-why-optimize`, // original endpoint you already had
+      resolveUrl: `${apiUrlRef.current}/api/get-why-optimize?${qs.toString()}`,
+      legacyUrl: `${apiUrlRef.current}/api/get-why-optimize`,
     };
-  }
+  }, [campaignId]);
 
-  // Normalize in case your API returns different shapes later
-  function normalizeVariant(data: any): Variant | null {
-    if (!data) return null;
-    if (data._id && data.title && Array.isArray(data.boxes)) return data as Variant;
-    // If later you return { whyVariant: {...} } you can adapt here.
-    return null;
-  }
+  const normalizeVariant = useCallback(
+    (data: unknown): Variant | null => {
+      if (isVariant(data)) return data;
+      // future-proof: if API later returns { whyVariant: {...} }
+      if (
+        data &&
+        typeof data === "object" &&
+        "whyVariant" in data &&
+        isVariant((data as any).whyVariant)
+      ) {
+        return (data as any).whyVariant as Variant;
+      }
+      return null;
+    },
+    [isVariant]
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -74,9 +102,11 @@ export default function WhyOptimizeLoader({ campaignId }: Props) {
       try {
         const { hasAny, resolveUrl, legacyUrl } = buildUrls();
 
-        // Try resolver-style (with params) first; fall back to legacy
-        const res = await fetch(hasAny ? resolveUrl : legacyUrl, { cache: "no-store" });
-        let data = await res.json();
+        // try resolver first, then fallback
+        const res = await fetch(hasAny ? resolveUrl : legacyUrl, {
+          cache: "no-store",
+        });
+        let data: unknown = await res.json();
 
         let v = normalizeVariant(data);
         if (!v && hasAny) {
@@ -87,10 +117,11 @@ export default function WhyOptimizeLoader({ campaignId }: Props) {
         if (!v) throw new Error("No valid WhyOptimize variant");
 
         if (!mounted) return;
+
         setVariant(v);
         variantRef.current = v;
 
-        // ---- Impression tracking (kept) ----
+        // impression
         fetch(`${apiUrlRef.current}/api/track-why-optimize`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -103,7 +134,7 @@ export default function WhyOptimizeLoader({ campaignId }: Props) {
           }),
         }).catch(() => {});
 
-        // Start/Reset stay-time timer (kept)
+        // start timer
         startTimeRef.current = Date.now();
       } catch (err) {
         console.error("Error fetching WhyOptimize variant:", err);
@@ -112,7 +143,7 @@ export default function WhyOptimizeLoader({ campaignId }: Props) {
 
     fetchVariant();
 
-    // Cleanup — track stay time on unmount (kept)
+    // cleanup → stay time
     return () => {
       mounted = false;
       const v = variantRef.current;
@@ -132,8 +163,7 @@ export default function WhyOptimizeLoader({ campaignId }: Props) {
         }).catch(() => {});
       }
     };
-    // only run on mount/unmount; internal refs handle updates
-  }, [campaignId]);
+  }, [buildUrls, normalizeVariant]);
 
   if (!variant) return <div>Loading...</div>;
 

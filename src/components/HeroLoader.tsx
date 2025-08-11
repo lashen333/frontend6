@@ -1,4 +1,4 @@
-// src\components\HeroLoader.tsx
+// src/components/HeroLoader.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -10,8 +10,8 @@ import { useGeoLocation } from '@/hooks/useGeoLocation';
 import { sendAnalyticsEvent } from '@/utils/sendAnalyticsEvent';
 
 type HeroLoaderProps = {
-  initialVariant?: HeroVariantType | null; // <-- new
-  campaignId?: string | null;              // <-- new
+  initialVariant?: HeroVariantType | null;
+  campaignId?: string | null;
 };
 
 export default function HeroLoader({ initialVariant, campaignId }: HeroLoaderProps) {
@@ -20,11 +20,14 @@ export default function HeroLoader({ initialVariant, campaignId }: HeroLoaderPro
   const location = useGeoLocation();
 
   useEffect(() => {
-    // if server already provided it, we can skip fetch (optional)
     if (initialVariant) return;
 
-    const searchParams = window.location.search;
-    const url = `${apiUrl}/api/get-hero${searchParams}`;
+    // Build query: start from current URL, then ensure campaign_id is present if we have it
+    const sp = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    if (campaignId && !sp.has('campaign_id')) {
+      sp.set('campaign_id', campaignId);
+    }
+    const url = `${apiUrl}/api/get-hero?${sp.toString()}`;
 
     async function fetchVariant() {
       try {
@@ -43,6 +46,8 @@ export default function HeroLoader({ initialVariant, campaignId }: HeroLoaderPro
               visitorId: getVisitorId(),
               value: 1,
               utms,
+              // use campaignId in analytics too
+              campaignId: campaignId ?? sp.get('campaign_id') ?? null,
             },
             location
           );
@@ -53,7 +58,7 @@ export default function HeroLoader({ initialVariant, campaignId }: HeroLoaderPro
     }
 
     fetchVariant();
-  }, [apiUrl, location, initialVariant]);
+  }, [apiUrl, location, initialVariant, campaignId]);
 
   if (!variant) return <div className="text-center p-10">Loading...</div>;
 
