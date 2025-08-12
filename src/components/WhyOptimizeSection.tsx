@@ -1,8 +1,8 @@
-// src\components\WhyOptimizeSection.tsx
+// src/components/WhyOptimizeSection.tsx
 "use client";
 
-import {getVisitorId} from "@/utils/visitorId";
-import {getUTMParams} from "@/utils/utm";
+import { getVisitorId } from "@/utils/visitorId";
+import { getUTMParams } from "@/utils/utm";
 
 export default function WhyOptimizeSection({
   title,
@@ -13,7 +13,6 @@ export default function WhyOptimizeSection({
   boxes: { heading: string; description: string }[];
   _id: string;
 }) {
-
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const handleClick = async (boxIndex: number) => {
@@ -28,40 +27,32 @@ export default function WhyOptimizeSection({
         utms: getUTMParams(),
         timestamp: Date.now(),
       }),
-    }); 
-
+    });
   };
+
   return (
-    <section className="relative py-16 px-6 bg-gradient-to-br from-black via-gray-900 to-black overflow-hidden">
-      {/* Background glow elements */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-yellow-400 rounded-full blur-3xl opacity-20 -translate-x-1/3 -translate-y-1/3 animate-pulse"></div>
-      <div className="absolute bottom-0 right-0 w-64 h-64 bg-yellow-300 rounded-full blur-3xl opacity-20 translate-x-1/3 translate-y-1/3 animate-pulse delay-200"></div>
+    <section className="relative py-20 px-6 bg-[#0b0f19] border-t border-white/10">
+      <div className="mx-auto max-w-7xl">
+        <h2 className="text-center text-3xl sm:text-4xl font-extrabold text-yellow-400">
+          {title}
+        </h2>
 
-      {/* Section title */}
-      <h2
-        className="text-3xl sm:text-4xl font-extrabold text-yellow-400 text-center mb-12 animate-fadeInDown"
-        style={{ animationDelay: "0.2s" }}
-      >
-        {title}
-      </h2>
-
-      {/* Boxes grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
-        {boxes.map((box, idx) => (
-          <div
-            key={idx}
-            onClick={() => handleClick(idx)}
-            className="bg-gray-900 border border-yellow-400/30 rounded-2xl shadow-lg p-6 cursor-pointer transform hover:scale-105 hover:shadow-2xl hover:border-yellow-400 transition-all duration-300 animate-fadeInUp"
-            style={{ animationDelay: `${0.3 + idx * 0.1}s` }}
-          >
-            <h3 className="text-lg font-semibold text-yellow-300 mb-3">
-              {box.heading}
-            </h3>
-            <p className="text-sm text-gray-300 leading-relaxed">
-              {box.description}
-            </p>
-          </div>
-        ))}
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {boxes.map((box, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleClick(idx)}
+              className="text-left rounded-2xl p-6 bg-[#11162a] border border-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400/60"
+            >
+              <h3 className="text-lg font-semibold text-yellow-300 mb-2">
+                {box.heading}
+              </h3>
+              <p className="text-sm leading-relaxed text-gray-200/90">
+                {box.description}
+              </p>
+            </button>
+          ))}
+        </div>
       </div>
     </section>
   );
